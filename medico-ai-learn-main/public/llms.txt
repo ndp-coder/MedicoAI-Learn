@@ -1,0 +1,40 @@
+# MedicoAI Learn
+
+> AI-powered study companion for MBBS and BDS students — daily quizzes, flashcards, clinical case studies, OSCE practice, lecture recorder, and AI doubt solver tailored to your year and subjects.
+
+MedicoAI Learn helps medical and dental students master their curriculum with adaptive practice, spaced-repetition flashcards, AI-generated summaries, mock exams, and progress analytics. First-time users pick MBBS or BDS, their year of study, and their subjects so every feature is course-aware.
+
+## Pages
+
+- [Home](/): Dashboard with daily streak, progress, and quick actions.
+- [Daily Quiz](/quiz): Subject-wise multiple choice quizzes for your course.
+- [Daily Challenge](/challenge): One curated challenge per day.
+- [Flashcards](/flashcards): Spaced-repetition flashcards across your subjects.
+- [Clinical Cases](/cases): Interactive clinical case scenarios.
+- [OSCE Practice](/osce): Objective Structured Clinical Examination drills.
+- [Doubt Solver](/doubt): Ask an AI tutor questions, including image-based.
+- [Notes Summarizer](/summarizer): Turn long notes into concise summaries and cheat sheets.
+- [Lecture Recorder](/recorder): Record lectures and convert audio to study notes.
+- [Practice Mode](/practice): Convert summaries into spaced-repetition flashcards and quizzes.
+- [Recap](/recap): Review previous topics and weak areas.
+- [Notes](/notes): Personal notes library.
+- [Study Plan](/study-plan): Personalized weekly study schedule.
+- [Formula Sheet](/formula-sheet): Quick-reference clinical formulas.
+- [Mock Exam](/mock-exam): Full-length mock exams.
+- [Viva](/viva): Voice-based viva practice.
+- [Previous Year Questions](/pyq): Past exam questions by subject.
+- [Case Study](/case-study): Deeper case-based learning.
+- [Diagram Quiz](/diagram-quiz): Identify anatomy and clinical diagrams.
+- [Diagram Explain](/diagram-explain): AI-explained medical diagrams.
+- [Drill](/drill): Rapid-fire question drills.
+- [Mistakes](/mistakes): Review questions you got wrong.
+- [Pomodoro Timer](/timer): Focus timer with session log.
+- [Bookmarks](/bookmarks): Saved questions and notes.
+- [Goals](/goals): Track study goals.
+- [Test Marks](/marks): Log and analyze test marks.
+- [Analytics](/analytics): Study analytics and trends.
+- [Suggestions](/suggestions): Personalized study tips.
+
+## Optional
+
+- [Settings](/settings): Switch course, year, subjects, and app preferences.

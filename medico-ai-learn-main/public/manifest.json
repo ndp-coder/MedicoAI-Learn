@@ -1,0 +1,16 @@
+{
+  "name": "MedicoAI Learn",
+  "short_name": "MedicoAI",
+  "description": "AI-powered study companion for MBBS and BDS students",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
