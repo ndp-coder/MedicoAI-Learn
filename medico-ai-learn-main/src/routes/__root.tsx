@@ -57,7 +57,10 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { name: "google-site-verification", content: "8gFbwq-gdLVhlPnlHxqUYFRb1EGK7zKRCf3k4tO-DW0" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/medicoai-logo.png", type: "image/png" },
+    ],
   }),
   shellComponent: RootShell,
   component: () => <Outlet />,

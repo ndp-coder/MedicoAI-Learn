@@ -21,15 +21,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        // Trigger a full sync pull for all keys when user authenticates
+        const { pullAllFromCloud } = await import("@/lib/syncEngine");
+        pullAllFromCloud();
+      }
       setLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        // Trigger a full sync pull for all keys on initial load
+        const { pullAllFromCloud } = await import("@/lib/syncEngine");
+        pullAllFromCloud();
+      }
       setLoading(false);
     });
 

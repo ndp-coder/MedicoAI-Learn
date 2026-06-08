@@ -1,5 +1,5 @@
 const STORAGE_KEY = "dentai-gamification";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export interface GamificationData {
   totalXP: number;
@@ -56,7 +56,7 @@ function getData(): GamificationData {
 
 function saveData(data: GamificationData) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  syncToCloud("gamification", () => data);
+  pushToCloud(STORAGE_KEY, data);
 }
 
 export function getXPData(): GamificationData {

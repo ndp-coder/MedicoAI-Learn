@@ -11,7 +11,7 @@ export interface BookmarkedQuestion {
 }
 
 const STORAGE_KEY = "dentai-bookmarks";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export function getBookmarks(): BookmarkedQuestion[] {
   try {
@@ -24,7 +24,7 @@ export function getBookmarks(): BookmarkedQuestion[] {
 
 function saveBookmarks(bookmarks: BookmarkedQuestion[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(bookmarks));
-  syncToCloud("bookmarks", () => bookmarks);
+  pushToCloud(STORAGE_KEY, bookmarks);
 }
 
 export function addBookmark(q: Omit<BookmarkedQuestion, "id" | "savedAt">): BookmarkedQuestion {

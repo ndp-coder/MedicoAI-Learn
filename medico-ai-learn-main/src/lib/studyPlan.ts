@@ -16,7 +16,7 @@ export interface StudyPlan {
 }
 
 const STORAGE_KEY = "dentai-study-plans";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export function getStudyPlans(): StudyPlan[] {
   try {
@@ -27,7 +27,7 @@ export function getStudyPlans(): StudyPlan[] {
 
 function savePlans(plans: StudyPlan[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(plans));
-  syncToCloud("study_plans", () => plans);
+  pushToCloud(STORAGE_KEY, plans);
 }
 
 export function saveStudyPlan(plan: StudyPlan) {

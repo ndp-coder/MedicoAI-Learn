@@ -7,7 +7,7 @@ export interface SubjectProgress {
 export type ProgressData = Record<string, SubjectProgress>;
 
 const STORAGE_KEY = "dentai-subject-progress";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export function getProgress(): ProgressData {
   try {
@@ -20,7 +20,7 @@ export function getProgress(): ProgressData {
 
 function saveProgress(data: ProgressData) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  syncToCloud("progress", () => data);
+  pushToCloud(STORAGE_KEY, data);
 }
 
 export function trackQuizAttempt(subjectId: string, attempted: number, correct: number) {

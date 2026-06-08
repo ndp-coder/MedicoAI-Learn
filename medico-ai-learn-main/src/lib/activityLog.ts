@@ -1,5 +1,5 @@
 const STORAGE_KEY = "dentai-activity-log";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export interface DayActivity {
   quiz: boolean;
@@ -24,7 +24,7 @@ export function logActivity(type: "quiz" | "recap" | "flashcards") {
   if (!log[today]) log[today] = { quiz: false, recap: false, flashcards: false };
   log[today][type] = true;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(log));
-  syncToCloud("activity_log", () => log);
+  pushToCloud(STORAGE_KEY, log);
 }
 
 export function getCurrentStreak(): number {

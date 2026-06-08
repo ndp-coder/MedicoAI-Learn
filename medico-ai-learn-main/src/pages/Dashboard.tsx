@@ -110,13 +110,13 @@ const Dashboard = () => {
 
   return (
     <div className="animate-page-in">
-      <div className="gradient-dental text-black px-4 py-5">
+      <div className="gradient-dental text-white px-4 py-5">
         <div className="max-w-lg mx-auto">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold opacity-90">
               {studentName ? `Hey ${studentName}! 👋` : "Welcome! 👋"}
             </p>
-            <Button variant="ghost" size="sm" onClick={handleShareProgress} className="text-black hover:bg-black/10 text-xs">
+            <Button variant="ghost" size="sm" onClick={handleShareProgress} className="text-white hover:bg-white/10 text-xs">
               <Share2 className="w-3.5 h-3.5 mr-1" /> Share
             </Button>
           </div>

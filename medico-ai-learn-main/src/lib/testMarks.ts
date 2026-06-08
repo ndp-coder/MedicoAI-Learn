@@ -12,7 +12,7 @@ export interface TestMark {
 }
 
 const STORAGE_KEY = "dentai-test-marks";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export function getTestMarks(): TestMark[] {
   try {
@@ -32,14 +32,14 @@ export function addTestMark(mark: Omit<TestMark, "id" | "createdAt">): TestMark 
   };
   marks.push(newMark);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(marks));
-  syncToCloud("test_marks", () => marks);
+  pushToCloud(STORAGE_KEY, marks);
   return newMark;
 }
 
 export function deleteTestMark(id: string) {
   const marks = getTestMarks().filter((m) => m.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(marks));
-  syncToCloud("test_marks", () => marks);
+  pushToCloud(STORAGE_KEY, marks);
 }
 
 export function getSubjectAverage(subjectId: string): number {

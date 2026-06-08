@@ -1,5 +1,5 @@
 const STORAGE_KEY = "dentai-mistake-log";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export interface Mistake {
   id: string;
@@ -23,7 +23,7 @@ function getMistakes(): Mistake[] {
 
 function saveMistakes(mistakes: Mistake[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(mistakes));
-  syncToCloud("mistakes", () => mistakes);
+  pushToCloud(STORAGE_KEY, mistakes);
 }
 
 export function logMistake(data: Omit<Mistake, "id" | "timestamp" | "timesWrong" | "timesCorrectAfter">) {
@@ -74,6 +74,7 @@ export function getMistakeStats() {
 
 export function clearMistakes() {
   localStorage.removeItem(STORAGE_KEY);
+  pushToCloud(STORAGE_KEY, []);
 }
 
 export function getPracticeMistakes(subjectId?: string, limit = 10): Mistake[] {

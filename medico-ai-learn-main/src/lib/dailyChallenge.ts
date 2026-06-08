@@ -1,4 +1,5 @@
 // Daily Challenge: one curated MCQ set per day. Same for every user (seeded by date).
+import { pushToCloud } from "./syncEngine";
 
 export interface ChallengeMCQ {
   question: string;
@@ -136,6 +137,7 @@ export function saveChallengeResult(result: ChallengeResult) {
     filtered.push(result);
     if (filtered.length > 30) filtered.splice(0, filtered.length - 30);
     localStorage.setItem(COMPLETION_KEY, JSON.stringify(filtered));
+    pushToCloud(COMPLETION_KEY, filtered);
   } catch {
     // ignore
   }

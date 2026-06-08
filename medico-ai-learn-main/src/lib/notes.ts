@@ -1,5 +1,5 @@
 const STORAGE_KEY = "dentai-study-notes";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export interface StudyNote {
   id: string;
@@ -21,7 +21,7 @@ export function getNotes(): StudyNote[] {
 
 function saveNotes(notes: StudyNote[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-  syncToCloud("notes", () => notes);
+  pushToCloud(STORAGE_KEY, notes);
 }
 
 export function addNote(subjectId: string, title: string, content: string): StudyNote {

@@ -65,20 +65,47 @@ const Onboarding = () => {
 
     setSaving(true);
     try {
+      // Save to localStorage first so the app works offline
       setCurrentCourse(course);
       localStorage.setItem("dentai-year", JSON.stringify(year.value));
       setSelectedSubjectIds(Array.from(selected));
 
+      // Also persist student_name from auth metadata to localStorage
+      const studentName = user?.user_metadata?.student_name || "";
+      if (studentName) {
+        localStorage.setItem("dentai-student-name", JSON.stringify(studentName));
+      }
+
+      // Save to Supabase so data persists across devices/browsers
       if (user) {
-        await supabase
+        const { error } = await supabase
           .from("profiles")
           .update({
             course,
             year_of_study: year.value,
             selected_subject_ids: Array.from(selected),
             onboarded_at: new Date().toISOString(),
+            student_name: studentName,
           })
           .eq("id", user.id);
+
+        if (error) {
+          console.error("Onboarding DB save error:", error);
+          // Fallback: try upsert in case profile row doesn't exist
+          const { error: upsertError } = await supabase
+            .from("profiles")
+            .upsert({
+              id: user.id,
+              course,
+              year_of_study: year.value,
+              selected_subject_ids: Array.from(selected),
+              onboarded_at: new Date().toISOString(),
+              student_name: studentName,
+            });
+          if (upsertError) {
+            console.error("Onboarding DB upsert error:", upsertError);
+          }
+        }
       }
 
       toast.success(`Welcome to MedicoAI Learn — ${course.toUpperCase()} ${year.label}!`);

@@ -1,4 +1,4 @@
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export interface WeeklyGoals {
   targetQuizzes: number;
@@ -40,7 +40,7 @@ export function logStudyHours(hours: number) {
     logs.push({ date: today, hoursStudied: hours });
   }
   localStorage.setItem(LOG_KEY, JSON.stringify(logs));
-  syncToCloud("study_hours", () => logs);
+  pushToCloud(LOG_KEY, logs);
 }
 
 export function getWeekRange(): { start: string; end: string } {

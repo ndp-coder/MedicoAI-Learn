@@ -5,7 +5,7 @@ export interface PomodoroSession {
 }
 
 const STORAGE_KEY = "dentai-pomodoro-sessions";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export function getPomodoroSessions(): PomodoroSession[] {
   try {
@@ -24,7 +24,7 @@ export function logPomodoroSession(durationMinutes: number) {
     durationMinutes,
   });
   localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
-  syncToCloud("pomodoro", () => sessions);
+  pushToCloud(STORAGE_KEY, sessions);
 }
 
 export function getTodayPomodoroCount(): number {

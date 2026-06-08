@@ -11,7 +11,7 @@ export interface Flashcard {
 }
 
 const STORAGE_KEY = "dentai-flashcards";
-import { syncToCloud } from "./syncEngine";
+import { pushToCloud } from "./syncEngine";
 
 export function getFlashcards(): Flashcard[] {
   try {
@@ -24,7 +24,7 @@ export function getFlashcards(): Flashcard[] {
 
 function saveFlashcards(cards: Flashcard[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
-  syncToCloud("flashcards", () => cards);
+  pushToCloud(STORAGE_KEY, cards);
 }
 
 export function addFlashcard(term: string, definition: string, subjectId: string): Flashcard {

@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { Home, MessageCircle, BookOpen, RefreshCw, Layers, Target, FileText, Lightbulb, Moon, Sun, Timer, Bookmark, Settings2, MoreHorizontal, StickyNote, CalendarDays, Mic, ClipboardList, BarChart3, Stethoscope, Image, Zap, AlertTriangle, GraduationCap, Calculator, LogOut, Cloud, CloudOff, Loader2, Trophy, ClipboardCheck } from "lucide-react";
+import { Home, MessageCircle, BookOpen, RefreshCw, Layers, Target, FileText, Lightbulb, Moon, Sun, Timer, Bookmark, Settings2, MoreHorizontal, StickyNote, CalendarDays, Mic, ClipboardList, BarChart3, Stethoscope, Image, Zap, AlertTriangle, GraduationCap, Calculator, LogOut, Cloud, CloudOff, Loader2, Trophy, ClipboardCheck, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -109,7 +109,7 @@ const Layout = () => {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
-        <header className="gradient-dental text-primary-foreground px-4 py-3 flex items-center justify-between shadow-lg sticky top-0 z-50">
+        <header className="gradient-dental text-white px-4 py-3 flex items-center justify-between shadow-lg sticky top-0 z-50">
           <div className="flex items-center gap-2">
             <img src={medicoAiLogo} alt="MedicoAI Learn logo" width={36} height={36} className="w-9 h-9 rounded-lg bg-white/15 p-1" />
             <div>
@@ -119,10 +119,10 @@ const Layout = () => {
           </div>
           <div className="flex items-center gap-1">
             <SyncIndicator />
-            <Button aria-label="Toggle theme" variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="text-primary-foreground hover:bg-white/10 rounded-full w-9 h-9">
+            <Button aria-label="Toggle theme" variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="text-white hover:bg-white/10 rounded-full w-9 h-9">
               {theme === "dark" ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
             </Button>
-            <Button aria-label="Sign out" variant="ghost" size="icon" onClick={() => signOut()} className="text-primary-foreground hover:bg-white/10 rounded-full w-8 h-8">
+            <Button aria-label="Sign out" variant="ghost" size="icon" onClick={() => signOut()} className="text-white hover:bg-white/10 rounded-full w-8 h-8">
               <LogOut className="w-3.5 h-3.5" />
             </Button>
           </div>
@@ -180,34 +180,33 @@ const Layout = () => {
         <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
         <AppSidebar weakCount={weakCount} />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="gradient-dental text-black px-4 py-3 flex items-center justify-between shadow-lg sticky top-0 z-40">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="text-black hover:bg-black/10 rounded-lg" />
-              <img src={medicoAiLogo} alt="MedicoAI Learn logo" width={28} height={28} className="w-7 h-7" />
-              <span className="text-base font-bold tracking-tight" aria-label="MedicoAI Learn — AI-Powered Medical Education">MedicoAI Learn</span>
-              <span className="text-xs opacity-90 font-medium hidden sm:inline">{courseLabel(currentCourse)} · {level.emoji} {level.name}</span>
+          <header className="gradient-dental text-white h-14 flex items-center justify-between px-4 sm:px-6 shadow-md shrink-0">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="text-white hover:bg-white/10 rounded-lg" />
+              <div className="hidden sm:block">
+                <p className="text-sm font-bold leading-tight tracking-tight">MedicoAI Learn</p>
+                <p className="text-[10px] opacity-80 font-medium">{courseLabel(currentCourse)} · Level {level.level}</p>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <SyncIndicator />
-              <Button aria-label="Open command palette" variant="ghost" size="sm" onClick={() => setCommandOpen(true)} className="text-black hover:bg-black/10 text-xs hidden sm:flex">
-                ⌘K
+              <Button aria-label="Open command palette" variant="ghost" size="sm" onClick={() => setCommandOpen(true)} className="text-white hover:bg-white/10 text-xs hidden sm:flex">
+                <Search className="w-3.5 h-3.5 mr-2" /> Search (Ctrl+K)
               </Button>
-              <Button aria-label="Toggle theme" variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="text-black hover:bg-black/10 rounded-full w-9 h-9">
+              <Button aria-label="Toggle theme" variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="text-white hover:bg-white/10 rounded-full w-9 h-9">
                 {theme === "dark" ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
               </Button>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-black/10 flex items-center justify-center text-xs font-bold" aria-hidden="true">
-                      {userInitial}
-                    </div>
-                    <Button aria-label="Sign out" variant="ghost" size="icon" onClick={() => signOut()} className="text-black hover:bg-black/10 rounded-full w-8 h-8">
-                      <LogOut className="w-3.5 h-3.5" />
-                    </Button>
+              
+              {user && (
+                <div className="flex items-center gap-2 ml-1 border-l border-white/20 pl-3">
+                  <div className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center text-xs font-bold" aria-hidden="true">
+                    {userInitial}
                   </div>
-                </TooltipTrigger>
-                <TooltipContent>{user?.email}</TooltipContent>
-              </Tooltip>
+                  <Button aria-label="Sign out" variant="ghost" size="icon" onClick={() => signOut()} className="text-white hover:bg-white/10 rounded-full w-8 h-8">
+                    <LogOut className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
             </div>
           </header>
           <main className="flex-1 overflow-y-auto"><Outlet /></main>
