@@ -1,5 +1,5 @@
 [build]
-  command = "rm -rf node_modules && npm install --legacy-peer-deps && npm rebuild lightningcss --update-binary && npm run build"
+  command = "rm -rf node_modules package-lock.json bun.lockb bun.lock && npm install --legacy-peer-deps && npm run build"
   publish = "dist/client"
 
 [build.environment]
