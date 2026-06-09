@@ -22,6 +22,7 @@ export type Database = {
           exam_name: string | null
           id: string
           onboarded_at: string | null
+          plan_type: string | null
           selected_subject_ids: string[]
           settings_json: Json | null
           student_name: string | null
@@ -35,6 +36,7 @@ export type Database = {
           exam_name?: string | null
           id: string
           onboarded_at?: string | null
+          plan_type?: string | null
           selected_subject_ids?: string[]
           settings_json?: Json | null
           student_name?: string | null
@@ -48,6 +50,7 @@ export type Database = {
           exam_name?: string | null
           id?: string
           onboarded_at?: string | null
+          plan_type?: string | null
           selected_subject_ids?: string[]
           settings_json?: Json | null
           student_name?: string | null

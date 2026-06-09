@@ -6,24 +6,21 @@ Deno.serve(async (req) => {
     const body = await req.json();
     if (body.mode === "evaluate") {
       const tool = {
-        type: "function",
-        function: {
-          name: "return_eval",
-          parameters: {
-            type: "object",
-            properties: {
-              overallScore: { type: "number" },
-              diagnosisScore: { type: "number" },
-              treatmentScore: { type: "number" },
-              diagnosisFeedback: { type: "string" },
-              treatmentFeedback: { type: "string" },
-              correctDiagnosis: { type: "string" },
-              idealTreatment: { type: "string" },
-              missedPoints: { type: "array", items: { type: "string" } },
-              clinicalPearl: { type: "string" },
-            },
-            required: ["overallScore", "diagnosisScore", "treatmentScore", "diagnosisFeedback", "treatmentFeedback", "correctDiagnosis", "idealTreatment", "missedPoints", "clinicalPearl"],
+        name: "return_eval",
+        parameters: {
+          type: "object",
+          properties: {
+            overallScore: { type: "number" },
+            diagnosisScore: { type: "number" },
+            treatmentScore: { type: "number" },
+            diagnosisFeedback: { type: "string" },
+            treatmentFeedback: { type: "string" },
+            correctDiagnosis: { type: "string" },
+            idealTreatment: { type: "string" },
+            missedPoints: { type: "array", items: { type: "string" } },
+            clinicalPearl: { type: "string" },
           },
+          required: ["overallScore", "diagnosisScore", "treatmentScore", "diagnosisFeedback", "treatmentFeedback", "correctDiagnosis", "idealTreatment", "missedPoints", "clinicalPearl"],
         },
       };
       const out = await callAI({
@@ -35,30 +32,27 @@ Deno.serve(async (req) => {
     }
     const { subjectId = "general", difficulty = "medium" } = body;
     const tool = {
-      type: "function",
-      function: {
-        name: "return_case",
-        parameters: {
-          type: "object",
-          properties: {
-            title: { type: "string" },
-            category: { type: "string" },
-            patientInfo: {
-              type: "object",
-              properties: { age: { type: "string" }, gender: { type: "string" }, occupation: { type: "string" } },
-              required: ["age", "gender", "occupation"],
-            },
-            chiefComplaint: { type: "string" },
-            historyOfPresentIllness: { type: "string" },
-            pastMedicalHistory: { type: "string" },
-            pastDentalHistory: { type: "string" },
-            clinicalFindings: { type: "array", items: { type: "string" } },
-            radiographicFindings: { type: "string" },
-            investigations: { type: "array", items: { type: "string" } },
-            questions: { type: "array", items: { type: "string" } },
+      name: "return_case",
+      parameters: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          category: { type: "string" },
+          patientInfo: {
+            type: "object",
+            properties: { age: { type: "string" }, gender: { type: "string" }, occupation: { type: "string" } },
+            required: ["age", "gender", "occupation"],
           },
-          required: ["title", "category", "patientInfo", "chiefComplaint", "historyOfPresentIllness", "pastMedicalHistory", "pastDentalHistory", "clinicalFindings", "radiographicFindings", "investigations", "questions"],
+          chiefComplaint: { type: "string" },
+          historyOfPresentIllness: { type: "string" },
+          pastMedicalHistory: { type: "string" },
+          pastDentalHistory: { type: "string" },
+          clinicalFindings: { type: "array", items: { type: "string" } },
+          radiographicFindings: { type: "string" },
+          investigations: { type: "array", items: { type: "string" } },
+          questions: { type: "array", items: { type: "string" } },
         },
+        required: ["title", "category", "patientInfo", "chiefComplaint", "historyOfPresentIllness", "pastMedicalHistory", "pastDentalHistory", "clinicalFindings", "radiographicFindings", "investigations", "questions"],
       },
     };
     const out = await callAI({

@@ -8,6 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { OSCE_CHECKLISTS, type OSCEChecklist } from "@/lib/osceChecklists";
 import { awardXP } from "@/lib/gamification";
 import { toast } from "sonner";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeOverlay } from "@/components/UpgradeOverlay";
 
 const STORAGE_KEY = "dentai-osce-progress";
 
@@ -28,6 +30,8 @@ function saveProgress(p: ChecklistProgress) {
 }
 
 const OSCEChecklists = () => {
+  const { canAccess, loading: isSubLoading } = useSubscription();
+  const hasProAccess = canAccess("pro");
   const [active, setActive] = useState<OSCEChecklist | null>(null);
   const [progress, setProgress] = useState<ChecklistProgress>(loadProgress());
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -96,7 +100,9 @@ const OSCEChecklists = () => {
     const completedCount = checked.size;
     const totalCount = active.steps.length;
     return (
-      <div className="max-w-lg mx-auto px-4 py-5 space-y-4 animate-page-in">
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 animate-fade-in relative min-h-[60vh]">
+        {!isSubLoading && !hasProAccess && <UpgradeOverlay featureName="OSCE Checklists" requiredPlan="Pro" />}
+        
         <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" onClick={() => { setActive(null); setChecked(new Set()); }}>
             <ArrowLeft className="w-4 h-4 mr-1" /> Back

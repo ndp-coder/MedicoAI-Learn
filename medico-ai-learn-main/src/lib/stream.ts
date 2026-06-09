@@ -34,6 +34,7 @@ export async function streamChat({
   responseMode?: ResponseMode;
   aiPreferences?: AIPreferences;
   context?: ChatContext;
+  priority?: boolean;
 }) {
   const resp = await fetch(CHAT_URL, {
     method: "POST",
@@ -48,6 +49,7 @@ export async function streamChat({
       course: context?.course,
       year: context?.year,
       subjects: context?.subjects,
+      priority,
     }),
   });
 
@@ -79,7 +81,7 @@ export async function streamChat({
 
       try {
         const parsed = JSON.parse(jsonStr);
-        const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+        const content = parsed.candidates?.[0]?.content?.parts?.[0]?.text as string | undefined;
         if (content) onDelta(content);
       } catch {
         textBuffer = line + "\n" + textBuffer;
@@ -98,7 +100,7 @@ export async function streamChat({
       if (jsonStr === "[DONE]") continue;
       try {
         const parsed = JSON.parse(jsonStr);
-        const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+        const content = parsed.candidates?.[0]?.content?.parts?.[0]?.text as string | undefined;
         if (content) onDelta(content);
       } catch { /* ignore */ }
     }

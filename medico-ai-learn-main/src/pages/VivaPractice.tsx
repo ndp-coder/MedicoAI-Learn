@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useUserSubjects } from "@/hooks/useUserSubjects";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeOverlay } from "@/components/UpgradeOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activityLog";
 import { logMistake } from "@/lib/mistakeLog";
@@ -34,6 +36,8 @@ type Difficulty = "easy" | "medium" | "hard";
 
 const VivaPractice = () => {
   const subjects = useUserSubjects();
+  const { canAccess, loading: isSubLoading } = useSubscription();
+  const hasProAccess = canAccess("pro");
   const [subjectId, setSubjectId] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [loading, setLoading] = useState(false);
@@ -195,6 +199,7 @@ const VivaPractice = () => {
   if (questions.length === 0) {
     return (
       <div className="max-w-lg mx-auto px-4 py-5 space-y-5 animate-page-in">
+        {!isSubLoading && !hasProAccess && <UpgradeOverlay featureName="Viva Practice" requiredPlan="Pro" />}
         <div>
           <h2 className="text-lg font-bold">🎤 Viva Practice</h2>
           <p className="text-xs text-muted-foreground">Simulate an oral exam — AI evaluates your answers</p>
@@ -243,10 +248,9 @@ const VivaPractice = () => {
 
   // Active viva
   const q = questions[currentQ];
-  const hasEval = !!evaluations[currentQ];
-
   return (
-    <div className="max-w-lg mx-auto px-4 py-5 space-y-4 animate-page-in">
+    <div className="max-w-lg mx-auto px-4 py-5 space-y-4 animate-page-in relative min-h-[60vh]">
+      {!isSubLoading && !hasProAccess && <UpgradeOverlay featureName="Viva Practice" requiredPlan="Pro" />}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold">Viva Practice</h2>

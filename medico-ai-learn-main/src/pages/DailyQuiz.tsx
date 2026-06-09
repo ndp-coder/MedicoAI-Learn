@@ -23,6 +23,8 @@ import { QuickActions } from "@/components/QuickActions";
 import ReactMarkdown from "react-markdown";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 import { format } from "date-fns";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeOverlay } from "@/components/UpgradeOverlay";
 
 interface QuizQuestion {
   question: string;
@@ -55,6 +57,8 @@ const TIMER_SECONDS: Record<Difficulty, number> = {
 };
 
 const DailyQuiz = () => {
+  const { canAccess, loading: isSubLoading } = useSubscription();
+  const hasGoAccess = canAccess("go");
   const subjects = useUserSubjects();
   const today = new Date().toISOString().split("T")[0];
   const [quizHistory, setQuizHistory] = useLocalStorage<Record<string, QuizHistoryEntry[]>>("dentai-quiz-history-v2", {});
@@ -210,18 +214,6 @@ const DailyQuiz = () => {
     setAnswers((prev) => ({ ...prev, [qi]: parseInt(value) }));
   };
 
-  const goToNext = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion((c) => c + 1);
-    }
-  };
-
-  const goToPrev = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion((c) => c - 1);
-    }
-  };
-
   const handleBookmark = (qi: number) => {
     const q = questions[qi];
     addBookmark({
@@ -325,11 +317,6 @@ const DailyQuiz = () => {
     }
   };
 
-  const score = submitted
-    ? questions.reduce((acc, q, i) => acc + (answers[i] === q.correctIndex ? 1 : 0), 0)
-    : 0;
-
-  // Flatten history for chart
   const historyChartData = Object.entries(quizHistory)
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(-14)
@@ -344,7 +331,6 @@ const DailyQuiz = () => {
       };
     });
 
-  // Flatten all entries for list
   const allHistoryEntries = Object.entries(quizHistory)
     .sort(([a], [b]) => b.localeCompare(a))
     .flatMap(([date, entries]) => {
@@ -363,8 +349,12 @@ const DailyQuiz = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-5 space-y-4 animate-page-in">
-      <div className="flex items-center justify-between">
+    <div className="container py-8 max-w-4xl relative min-h-[60vh]">
+      {!isSubLoading && !hasGoAccess && (
+        <UpgradeOverlay featureName="Daily Quiz" requiredPlan="Go" />
+      )}
+      
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-bold">Daily Quiz</h2>
           <p className="text-xs text-muted-foreground">Test your knowledge</p>

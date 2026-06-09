@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activityLog";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeOverlay } from "@/components/UpgradeOverlay";
 
 interface PYQQuestion {
   question: string;
@@ -28,6 +30,8 @@ interface PYQPaper {
 }
 
 const PYQPractice = () => {
+  const { canAccess, loading: isSubLoading } = useSubscription();
+  const hasProAccess = canAccess("pro");
   const subjects = useUserSubjects();
   const [subjectId, setSubjectId] = useState("");
   const [yearStyle, setYearStyle] = useState("BDS 1st Year");
@@ -142,7 +146,9 @@ const PYQPractice = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-5 space-y-4 animate-page-in">
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 animate-fade-in relative min-h-[60vh]">
+      {!isSubLoading && !hasProAccess && <UpgradeOverlay featureName="PYQ Practice" requiredPlan="Pro" />}
+      
       {/* Paper header */}
       <Card className="border-none shadow-sm gradient-dental text-primary-foreground">
         <CardContent className="p-4">

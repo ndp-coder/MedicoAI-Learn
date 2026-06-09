@@ -17,67 +17,118 @@ export async function callAI(opts: {
   user: string | any[];
   tool?: any;
   model?: string;
+  stream?: boolean;
 }) {
-  const key = Deno.env.get("LOVABLE_API_KEY");
-  if (!key) throw new Error("LOVABLE_API_KEY not configured");
-  const body: any = {
-    model: opts.model ?? "google/gemini-2.5-flash",
-    messages: [
-      { role: "system", content: opts.system },
-      { role: "user", content: opts.user as any },
-    ],
-  };
-  if (opts.tool) {
-    body.tools = [opts.tool];
-    body.tool_choice = { type: "function", function: { name: opts.tool.function.name } };
+  const key = Deno.env.get("GEMINI_API_KEY");
+  if (!key) throw new Error("GEMINI_API_KEY not configured");
+  
+  const model = opts.model ?? "gemini-2.5-flash";
+  
+  // Format contents for Gemini
+  let parts: any[] = [];
+  if (Array.isArray(opts.user)) {
+    // Already in Gemini format (e.g. from generate-ocr) or we need to map it
+    parts = opts.user.map(u => {
+      if (u.inlineData) return u; // Already Gemini format
+      if (u.type === "text") return { text: u.text };
+      if (u.type === "image_url") {
+        // Map OpenAI image_url format to Gemini inlineData if accidentally passed
+        const url = u.image_url.url as string;
+        const [meta, data] = url.split(',');
+        const mimeType = meta.split(';')[0].replace('data:', '');
+        return { inlineData: { mimeType, data } };
+      }
+      return u;
+    });
+  } else {
+    parts = [{ text: opts.user }];
   }
-  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+
+  const body: any = {
+    contents: [{ role: "user", parts }],
+  };
+
+  if (opts.system) {
+    body.systemInstruction = {
+      parts: [{ text: opts.system }]
+    };
+  }
+
+  if (opts.tool) {
+    body.tools = [{
+      functionDeclarations: [opts.tool]
+    }];
+    body.toolConfig = {
+      functionCallingConfig: {
+        mode: "ANY",
+        allowedFunctionNames: [opts.tool.name]
+      }
+    };
+  }
+
+  const endpoint = opts.stream 
+    ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${key}`
+    : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+
+  const resp = await fetch(endpoint, {
     method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
+
   if (resp.status === 429) throw new Response(JSON.stringify({ error: "Rate limit exceeded" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-  if (resp.status === 402) throw new Response(JSON.stringify({ error: "AI credits exhausted" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   if (!resp.ok) {
     const t = await resp.text();
-    console.error("AI gateway error", resp.status, t);
-    throw new Error("AI gateway error");
+    console.error("Gemini API error", resp.status, t);
+    throw new Error(`Gemini API error: ${resp.status}`);
   }
+
+  if (opts.stream) {
+    return resp;
+  }
+
   const j = await resp.json();
-  if (opts.tool) {
-    const args = j?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
-    if (!args) throw new Error("No tool call returned");
-    return JSON.parse(args);
+  const part = j?.candidates?.[0]?.content?.parts?.[0];
+
+  
+  if (!part) {
+    throw new Error("No content returned from AI");
   }
-  return j?.choices?.[0]?.message?.content ?? "";
+
+  if (opts.tool) {
+    if (!part.functionCall || !part.functionCall.args) {
+      console.error("Expected function call, got:", JSON.stringify(part));
+      throw new Error("No tool call returned");
+    }
+    return part.functionCall.args;
+  }
+  
+  return part.text ?? "";
 }
 
 export function mcqTool(name = "return_questions") {
   return {
-    type: "function",
-    function: {
-      name,
-      description: "Return MCQs",
-      parameters: {
-        type: "object",
-        properties: {
-          questions: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                question: { type: "string" },
-                options: { type: "array", items: { type: "string" } },
-                correctIndex: { type: "integer" },
-                explanation: { type: "string" },
-                subjectId: { type: "string" },
-              },
-              required: ["question", "options", "correctIndex", "explanation"],
+    name,
+    description: "Return MCQs",
+    parameters: {
+      type: "object",
+      properties: {
+        questions: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              question: { type: "string" },
+              options: { type: "array", items: { type: "string" } },
+              correctIndex: { type: "integer" },
+              explanation: { type: "string" },
+              subjectId: { type: "string" },
             },
+            required: ["question", "options", "correctIndex", "explanation"],
           },
         },
-        required: ["questions"],
       },
+      required: ["questions"],
     },
   };
 }

@@ -8,9 +8,9 @@ Deno.serve(async (req) => {
     const text = await callAI({
       system: "You are an OCR engine. Extract all handwritten or printed text from the image. Return clean, readable text preserving line breaks. No commentary.",
       user: [
-        { type: "text", text: "Extract all text from this image. Preserve structure with line breaks. Output text only." },
-        { type: "image_url", image_url: { url: `data:${mimeType};base64,${imageBase64}` } },
-      ] as any,
+        { text: "Extract all text from this image. Preserve structure with line breaks. Output text only." },
+        { inlineData: { mimeType, data: imageBase64 } },
+      ],
     });
     return json({ text });
   } catch (e) {

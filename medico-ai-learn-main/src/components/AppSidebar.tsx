@@ -8,6 +8,7 @@ import {
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,
 } from "@/components/ui/sidebar";
 import medicoAiLogo from "@/assets/medicoai-logo.png";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const learnItems = [
   { to: "/", icon: Home, label: "Home" },
@@ -45,6 +46,7 @@ const trackItems = [
   { to: "/analytics", icon: BarChart3, label: "Analytics" },
   { to: "/suggestions", icon: Lightbulb, label: "Study Tips" },
   { to: "/settings", icon: Settings2, label: "Settings" },
+  { to: "/pricing", icon: Zap, label: "Upgrade Plan" },
 ];
 
 interface AppSidebarProps {
@@ -55,6 +57,7 @@ export function AppSidebar({ weakCount }: AppSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { plan, loading } = useSubscription();
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname.startsWith(path);
@@ -102,9 +105,16 @@ export function AppSidebar({ weakCount }: AppSidebarProps) {
         <div className={`flex items-center gap-2 px-4 py-4 ${collapsed ? "justify-center px-2" : ""}`}>
           <img src={medicoAiLogo} alt="MedicoAI Learn logo" width={32} height={32} className="w-8 h-8 rounded-lg bg-sidebar-primary/10 p-1 shrink-0" />
           {!collapsed && (
-            <div className="overflow-hidden">
+            <div className="overflow-hidden flex flex-col items-start">
               <h2 className="text-sm font-bold text-sidebar-foreground leading-tight truncate">MedicoAI Learn</h2>
-              <p className="text-[10px] text-sidebar-foreground/60 truncate">AI-Powered Medical Education</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <p className="text-[10px] text-sidebar-foreground/60 truncate">AI-Powered</p>
+                {!loading && (
+                  <Badge variant={plan === "free" ? "outline" : "default"} className="text-[8px] h-3 px-1 py-0 uppercase">
+                    {plan}
+                  </Badge>
+                )}
+              </div>
             </div>
           )}
         </div>

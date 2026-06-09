@@ -5,31 +5,28 @@ Deno.serve(async (req) => {
   try {
     const { subjectId = "general", yearStyle = "recent", marksType = "mixed" } = await req.json();
     const tool = {
-      type: "function",
-      function: {
-        name: "return_paper",
-        parameters: {
-          type: "object",
-          properties: {
-            paperTitle: { type: "string" },
-            totalMarks: { type: "number" },
-            duration: { type: "string" },
-            questions: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  question: { type: "string" },
-                  marks: { type: "number" },
-                  type: { type: "string" },
-                  answer: { type: "string" },
-                },
-                required: ["question", "marks", "answer"],
+      name: "return_paper",
+      parameters: {
+        type: "object",
+        properties: {
+          paperTitle: { type: "string" },
+          totalMarks: { type: "number" },
+          duration: { type: "string" },
+          questions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                question: { type: "string" },
+                marks: { type: "number" },
+                type: { type: "string" },
+                answer: { type: "string" },
               },
+              required: ["question", "marks", "answer"],
             },
           },
-          required: ["paperTitle", "totalMarks", "duration", "questions"],
         },
+        required: ["paperTitle", "totalMarks", "duration", "questions"],
       },
     };
     const out = await callAI({

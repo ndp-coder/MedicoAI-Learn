@@ -15,10 +15,14 @@ import { allSubjects } from "@/lib/subjects";
 import { logActivity } from "@/lib/activityLog";
 import { FlashcardStats } from "@/components/FlashcardStats";
 import { toast } from "sonner";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeOverlay } from "@/components/UpgradeOverlay";
 
 type FlashcardMode = "review" | "browse" | "cram" | "stats" | "revision";
 
 const Flashcards = () => {
+  const { canAccess, loading: isSubLoading } = useSubscription();
+  const hasGoAccess = canAccess("go");
   const subjects = useUserSubjects();
   const [allCards, setAllCards] = useState<Flashcard[]>([]);
   const [dueCards, setDueCards] = useState<Flashcard[]>([]);
@@ -124,7 +128,10 @@ const Flashcards = () => {
 
   if (allCards.length === 0) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-8 text-center animate-page-in">
+      <div className="max-w-lg mx-auto px-4 py-8 text-center animate-page-in relative min-h-[60vh]">
+        {!isSubLoading && !hasGoAccess && (
+          <UpgradeOverlay featureName="Flashcards" requiredPlan="Go" />
+        )}
         <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-3">
           <Layers className="w-7 h-7 text-muted-foreground" />
         </div>
@@ -160,7 +167,10 @@ const Flashcards = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-5 space-y-4 animate-page-in">
+    <div className="max-w-lg mx-auto px-4 py-5 space-y-4 animate-page-in relative min-h-[60vh]">
+      {!isSubLoading && !hasGoAccess && (
+        <UpgradeOverlay featureName="Flashcards" requiredPlan="Go" />
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold">Flashcards</h2>

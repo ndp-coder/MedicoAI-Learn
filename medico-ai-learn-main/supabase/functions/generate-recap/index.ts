@@ -5,27 +5,24 @@ Deno.serve(async (req) => {
   try {
     const { topic, subject } = await req.json();
     const tool = {
-      type: "function",
-      function: {
-        name: "return_recap",
-        parameters: {
-          type: "object",
-          properties: {
-            summary: { type: "array", items: { type: "string" } },
-            keyTerms: { type: "array", items: { type: "string" } },
-            practiceQuestions: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: { question: { type: "string" }, answer: { type: "string" } },
-                required: ["question", "answer"],
-              },
+      name: "return_recap",
+      parameters: {
+        type: "object",
+        properties: {
+          summary: { type: "array", items: { type: "string" } },
+          keyTerms: { type: "array", items: { type: "string" } },
+          practiceQuestions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: { question: { type: "string" }, answer: { type: "string" } },
+              required: ["question", "answer"],
             },
-            quickTip: { type: "string" },
-            bookReference: { type: "string" },
           },
-          required: ["summary", "keyTerms", "practiceQuestions", "quickTip", "bookReference"],
+          quickTip: { type: "string" },
+          bookReference: { type: "string" },
         },
+        required: ["summary", "keyTerms", "practiceQuestions", "quickTip", "bookReference"],
       },
     };
     const out = await callAI({

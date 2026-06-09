@@ -16,6 +16,8 @@ import { logActivity } from "@/lib/activityLog";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { streamChat, type Msg } from "@/lib/stream";
 import ReactMarkdown from "react-markdown";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeOverlay } from "@/components/UpgradeOverlay";
 
 interface RecapData {
   summary: string[];
@@ -39,6 +41,8 @@ interface RecentTopic {
 }
 
 const TopicRecap = () => {
+  const { canAccess, loading: isSubLoading } = useSubscription();
+  const hasGoAccess = canAccess("go");
   const subjects = useUserSubjects();
   const [topic, setTopic] = useState("");
   const [subjectId, setSubjectId] = useState("");
@@ -223,6 +227,9 @@ const TopicRecap = () => {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-5 space-y-5 animate-page-in">
+      {!isSubLoading && !hasGoAccess && (
+        <UpgradeOverlay featureName="Topic Recap" requiredPlan="Go" />
+      )}
       <div>
         <h2 className="text-lg font-bold">Topic Recap</h2>
         <p className="text-xs text-muted-foreground">Tell us what you studied — we'll make it stick!</p>

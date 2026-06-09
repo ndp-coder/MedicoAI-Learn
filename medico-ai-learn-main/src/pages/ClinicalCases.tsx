@@ -9,8 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { awardXP } from "@/lib/gamification";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeOverlay } from "@/components/UpgradeOverlay";
 
 const ClinicalCases = () => {
+  const { canAccess, loading: isSubLoading } = useSubscription();
+  const hasProAccess = canAccess("pro");
   const [active, setActive] = useState<ClinicalCase | null>(null);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [feedback, setFeedback] = useState<Record<number, string>>({});
@@ -134,7 +138,9 @@ const ClinicalCases = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-5 space-y-4 animate-page-in">
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 animate-fade-in relative min-h-[60vh]">
+      {!isSubLoading && !hasProAccess && <UpgradeOverlay featureName="Clinical Cases" requiredPlan="Pro" />}
+      
       <div>
         <h1 className="text-lg font-bold">🩺 Clinical Cases</h1>
         <p className="text-xs text-muted-foreground">

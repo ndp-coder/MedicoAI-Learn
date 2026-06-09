@@ -133,123 +133,57 @@ Evaluate the student answer.`,
 }
 
 
+import { corsHeaders, json, callAI } from "../_shared/ai.ts";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const body = (await req.json()) as Payload;
     if (!body || !("action" in body)) {
-      return new Response(JSON.stringify({ error: "Missing action" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json({ error: "Missing action" }, 400);
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    let messages: any[];
-    let model = "google/gemini-2.5-flash";
+    let system = "";
+    let user: any = "";
+    
     if (body.action === "explain-diagram") {
-      const systemMsg =
-        "You are a friendly dental tutor explaining a diagram/image to a student. Give: (1) **What it shows** (2-3 lines identifying structures), (2) **Key points to understand** (3-4 bullet points), (3) **How to remember it** (a vivid mnemonic, analogy, or memory hook). Use markdown. Be concise but rich.";
+      system = "You are a friendly dental tutor explaining a diagram/image to a student. Give: (1) **What it shows** (2-3 lines identifying structures), (2) **Key points to understand** (3-4 bullet points), (3) **How to remember it** (a vivid mnemonic, analogy, or memory hook). Use markdown. Be concise but rich.";
       const userText = body.customPrompt?.trim()
         ? `Student's specific question: ${body.customPrompt}\n\nExplain this diagram with focus on the above.`
         : "Explain this dental/medical diagram and give me a memory hook to remember it.";
-      messages = [
-        { role: "system", content: systemMsg },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: userText },
-            { type: "image_url", image_url: { url: body.imageDataUrl } },
-          ],
-        },
+      
+      const mimeType = body.imageDataUrl.split(';')[0].split(':')[1];
+      const data = body.imageDataUrl.split(',')[1];
+        
+      user = [
+        { text: userText },
+        { inlineData: { mimeType, data } },
       ];
     } else if (body.action === "transcribe-lecture") {
-      const systemMsg =
-        "You are an expert academic note-taker. Listen to the recorded lecture audio and produce: (1) **Transcript** (clean, paragraphed, fix obvious filler), (2) **Structured Notes** (headings + bullets of key concepts), (3) **Key Terms** (bullet list with 1-line definitions), (4) **5 Practice Questions** with answers. Output rich markdown.";
-      messages = [
-        { role: "system", content: systemMsg },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: "Transcribe and structure this lecture recording." },
-            {
-              type: "input_audio",
-              input_audio: {
-                data: body.audioDataUrl.includes(",")
-                  ? body.audioDataUrl.split(",")[1]
-                  : body.audioDataUrl,
-                format: (body.mimeType ?? "audio/webm").includes("wav") ? "wav" : "webm",
-              },
-            },
-          ],
-        },
+      system = "You are an expert academic note-taker. Listen to the recorded lecture audio and produce: (1) **Transcript** (clean, paragraphed, fix obvious filler), (2) **Structured Notes** (headings + bullets of key concepts), (3) **Key Terms** (bullet list with 1-line definitions), (4) **5 Practice Questions** with answers. Output rich markdown.";
+      
+      const mimeType = body.mimeType ?? "audio/webm";
+      const data = body.audioDataUrl.includes(",")
+        ? body.audioDataUrl.split(",")[1]
+        : body.audioDataUrl;
+        
+      user = [
+        { text: "Transcribe and structure this lecture recording." },
+        { inlineData: { mimeType, data } },
       ];
     } else {
-      const { system, user } = buildPrompt(body);
-      messages = [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ];
+      const prompt = buildPrompt(body);
+      system = prompt.system;
+      user = prompt.user;
     }
 
+    const content = await callAI({ system, user });
 
-    const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-        }),
-      },
-    );
-
-    if (response.status === 429) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded. Try again shortly." }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (response.status === 402) {
-      return new Response(
-        JSON.stringify({ error: "AI credits exhausted. Please add credits to your Lovable workspace." }),
-        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-    if (!response.ok) {
-      const text = await response.text();
-      console.error("Gateway error:", response.status, text);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await response.json();
-    const content: string =
-      data.choices?.[0]?.message?.content ?? "(no response)";
-
-    return new Response(JSON.stringify({ content }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json({ content });
   } catch (e) {
+    if (e instanceof Response) return e;
     console.error("ai-helper error:", e);
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
   }
 });

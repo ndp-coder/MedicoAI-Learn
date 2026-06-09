@@ -8,6 +8,8 @@ import {
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeOverlay } from "@/components/UpgradeOverlay";
 import { streamChat, type Msg, type MsgContent, type ResponseMode, type AIPreferences } from "@/lib/stream";
 import { type ChatConversation, createChat, generateTitle, filterChats } from "@/lib/chatStorage";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -106,6 +108,9 @@ const RESPONSE_MODES: { value: ResponseMode; icon: any; label: string; shortLabe
 ];
 
 const DoubtSolver = () => {
+  const { canAccess, loading: isSubLoading } = useSubscription();
+  const hasGoAccess = canAccess("go");
+  const hasUltraAccess = canAccess("ultra");
   const [chats, setChats] = useLocalStorage<ChatConversation[]>("doubt-chats", []);
   const [activeChatId, setActiveChatId] = useLocalStorage<string | null>("doubt-active-chat", null);
   const [input, setInput] = useState("");
@@ -257,6 +262,7 @@ const DoubtSolver = () => {
         responseMode,
         aiPreferences: aiPreferences && Object.keys(aiPreferences).length > 0 ? aiPreferences : undefined,
         context: chatContext,
+        priority: hasUltraAccess,
         onDelta: (chunk) => upsertAssistant(chunk),
         onDone: () => setIsLoading(false),
         onError: (err) => { toast.error(err); setIsLoading(false); },
@@ -273,7 +279,10 @@ const DoubtSolver = () => {
   );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] animate-fade-in">
+    <div className="flex flex-col h-[calc(100vh-8rem)] animate-fade-in relative">
+      {!isSubLoading && !hasGoAccess && (
+        <UpgradeOverlay featureName="Ask a Doubt" requiredPlan="Go" />
+      )}
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card">
         <Button variant="ghost" size="sm" onClick={handleNewChat} className="gap-1.5 text-xs">

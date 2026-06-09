@@ -1,4 +1,4 @@
-CREATE TABLE user_data (
+CREATE TABLE IF NOT EXISTS user_data (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   data_key text NOT NULL,
@@ -9,5 +9,8 @@ CREATE TABLE user_data (
 
 ALTER TABLE user_data ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can manage their own data" ON user_data
-  FOR ALL USING (auth.uid() = user_id);
+DO $$ BEGIN
+  CREATE POLICY "Users can manage their own data" ON user_data
+    FOR ALL USING (auth.uid() = user_id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;

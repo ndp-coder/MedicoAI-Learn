@@ -6,20 +6,17 @@ Deno.serve(async (req) => {
     const body = await req.json();
     if (body.mode === "evaluate") {
       const tool = {
-        type: "function",
-        function: {
-          name: "return_eval",
-          parameters: {
-            type: "object",
-            properties: {
-              score: { type: "number" },
-              feedback: { type: "string" },
-              modelAnswer: { type: "string" },
-              strengths: { type: "array", items: { type: "string" } },
-              improvements: { type: "array", items: { type: "string" } },
-            },
-            required: ["score", "feedback", "modelAnswer"],
+        name: "return_eval",
+        parameters: {
+          type: "object",
+          properties: {
+            score: { type: "number" },
+            feedback: { type: "string" },
+            modelAnswer: { type: "string" },
+            strengths: { type: "array", items: { type: "string" } },
+            improvements: { type: "array", items: { type: "string" } },
           },
+          required: ["score", "feedback", "modelAnswer"],
         },
       };
       const out = await callAI({
@@ -31,27 +28,24 @@ Deno.serve(async (req) => {
     }
     const { subjectId = "general", difficulty = "medium" } = body;
     const tool = {
-      type: "function",
-      function: {
-        name: "return_viva",
-        parameters: {
-          type: "object",
-          properties: {
-            questions: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  question: { type: "string" },
-                  modelAnswer: { type: "string" },
-                  hints: { type: "array", items: { type: "string" } },
-                },
-                required: ["question", "modelAnswer"],
+      name: "return_viva",
+      parameters: {
+        type: "object",
+        properties: {
+          questions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                question: { type: "string" },
+                modelAnswer: { type: "string" },
+                hints: { type: "array", items: { type: "string" } },
               },
+              required: ["question", "modelAnswer"],
             },
           },
-          required: ["questions"],
         },
+        required: ["questions"],
       },
     };
     const out = await callAI({

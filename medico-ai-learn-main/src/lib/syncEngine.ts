@@ -5,16 +5,23 @@ let syncStatus: SyncStatus = "idle";
 const listeners: Set<(status: SyncStatus) => void> = new Set();
 
 export function getSyncStatus() { return syncStatus; }
-export function onSyncStatusChange(fn: (s: SyncStatus) => void) { 
-  listeners.add(fn); 
-  return () => listeners.delete(fn); 
+export function onSyncStatusChange(fn: (s: SyncStatus) => void) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
 }
-function setSyncStatus(s: SyncStatus) { 
-  syncStatus = s; 
-  listeners.forEach(fn => fn(s)); 
+function setSyncStatus(s: SyncStatus) {
+  syncStatus = s;
+  listeners.forEach(fn => fn(s));
 }
 
 const debounceTimers: Record<string, ReturnType<typeof setTimeout>> = {};
+
+/**
+ * Circuit breaker: once we confirm the user_data table doesn't exist,
+ * skip all further network requests for the lifetime of this page session.
+ * Resets naturally on next full page load.
+ */
+let tableConfirmedMissing = false;
 
 async function getUserId(): Promise<string | null> {
   const { data } = await supabase.auth.getUser();
@@ -25,17 +32,26 @@ async function getUserId(): Promise<string | null> {
  * Returns true if the error indicates the user_data table doesn't exist yet.
  * Covers:
  *   - PostgreSQL error code 42P01 (undefined_table)
+ *   - PGRST205 (table not in PostgREST schema cache)
  *   - PostgREST HTTP 404 / "relation does not exist" messages
  */
 function isTableUnavailable(error: any): boolean {
   if (!error) return false;
   if (error.code === '42P01') return true;
-  // PostgREST wraps the postgres error; check message & HTTP status
+  // PGRST205 = table not found in PostgREST schema cache
+  if (error.code === 'PGRST205') return true;
+  // PostgREST HTTP status checks
   if (error.status === 404 || error.status === 406) return true;
   const msg: string = (error.message ?? '').toLowerCase();
   if (msg.includes('relation') && msg.includes('does not exist')) return true;
+  if (msg.includes('schema cache')) return true;
   if (msg.includes('user_data') && msg.includes('not found')) return true;
   return false;
+}
+
+function handleTableUnavailable() {
+  tableConfirmedMissing = true;
+  setSyncStatus("idle");
 }
 
 /**
@@ -44,8 +60,11 @@ function isTableUnavailable(error: any): boolean {
  */
 export function pushToCloud(key: string, value: any) {
   if (debounceTimers[key]) clearTimeout(debounceTimers[key]);
-  
+
   debounceTimers[key] = setTimeout(async () => {
+    // Circuit breaker: table known to be missing, skip network request
+    if (tableConfirmedMissing) return;
+
     const userId = await getUserId();
     if (!userId) return;
 
@@ -63,8 +82,7 @@ export function pushToCloud(key: string, value: any) {
 
       if (error) {
         if (isTableUnavailable(error)) {
-          // Table not migrated yet — silently skip, fall back to localStorage only
-          setSyncStatus("idle");
+          handleTableUnavailable();
           return;
         }
         throw error;
@@ -72,7 +90,7 @@ export function pushToCloud(key: string, value: any) {
       setSyncStatus("synced");
     } catch (e) {
       if (isTableUnavailable(e)) {
-        setSyncStatus("idle");
+        handleTableUnavailable();
         return;
       }
       console.error(`Sync error [${key}]:`, e);
@@ -85,6 +103,9 @@ export function pushToCloud(key: string, value: any) {
  * Pulls a specific key from the cloud and stores it in localStorage.
  */
 export async function pullFromCloud(key: string): Promise<any | null> {
+  // Circuit breaker: table known to be missing, skip network request
+  if (tableConfirmedMissing) return null;
+
   const userId = await getUserId();
   if (!userId) return null;
 
@@ -99,7 +120,7 @@ export async function pullFromCloud(key: string): Promise<any | null> {
 
     if (error) {
       if (isTableUnavailable(error)) {
-        setSyncStatus("idle");
+        handleTableUnavailable();
         return null;
       }
       throw error;
@@ -114,7 +135,7 @@ export async function pullFromCloud(key: string): Promise<any | null> {
     return null;
   } catch (e) {
     if (isTableUnavailable(e)) {
-      setSyncStatus("idle");
+      handleTableUnavailable();
       return null;
     }
     console.error(`Pull error [${key}]:`, e);
@@ -128,6 +149,9 @@ export async function pullFromCloud(key: string): Promise<any | null> {
  * Called once on login.
  */
 export async function pullAllFromCloud(): Promise<boolean> {
+  // Circuit breaker: table known to be missing, skip network request
+  if (tableConfirmedMissing) return false;
+
   const userId = await getUserId();
   if (!userId) return false;
 
@@ -140,7 +164,7 @@ export async function pullAllFromCloud(): Promise<boolean> {
 
     if (error) {
       if (isTableUnavailable(error)) {
-        setSyncStatus("idle");
+        handleTableUnavailable();
         return false;
       }
       throw error;
@@ -158,7 +182,7 @@ export async function pullAllFromCloud(): Promise<boolean> {
     return true;
   } catch (e) {
     if (isTableUnavailable(e)) {
-      setSyncStatus("idle");
+      handleTableUnavailable();
       return false;
     }
     console.error("Pull all from cloud error:", e);

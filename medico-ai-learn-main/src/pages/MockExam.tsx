@@ -25,6 +25,8 @@ type ExamLength = "25" | "50" | "100";
 const EXAM_TIMES: Record<ExamLength, number> = { "25": 30 * 60, "50": 60 * 60, "100": 120 * 60 };
 
 const MockExam = () => {
+  const { canAccess, loading: isSubLoading } = useSubscription();
+  const hasProAccess = canAccess("pro");
   const subjects = useUserSubjects();
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<MockQuestion[]>([]);
@@ -146,6 +148,9 @@ const MockExam = () => {
 
     return (
       <div className="max-w-lg mx-auto px-4 py-8 animate-page-in space-y-5">
+        {!isSubLoading && !hasProAccess && (
+          <UpgradeOverlay featureName="Mock Exam" requiredPlan="Pro" />
+        )}
         <div className="text-center">
           <div className="w-20 h-20 rounded-2xl gradient-dental flex items-center justify-center mx-auto mb-4">
             <Trophy className="w-10 h-10 text-primary-foreground" />
@@ -202,6 +207,9 @@ const MockExam = () => {
   if (questions.length === 0) {
     return (
       <div className="max-w-lg mx-auto px-4 py-5 space-y-5 animate-page-in">
+        {!isSubLoading && !hasProAccess && (
+          <UpgradeOverlay featureName="Mock Exam" requiredPlan="Pro" />
+        )}
         <div>
           <h2 className="text-lg font-bold">📋 Mock Exam</h2>
           <p className="text-xs text-muted-foreground">Full-length exam simulation</p>
@@ -242,7 +250,10 @@ const MockExam = () => {
   const answered = answers[currentQ] !== undefined;
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-5 space-y-4 animate-page-in">
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6 animate-fade-in relative min-h-[60vh]">
+      {!isSubLoading && !hasProAccess && (
+        <UpgradeOverlay featureName="Mock Exam" requiredPlan="Pro" />
+      )}
       <div className="flex items-center justify-between">
         <Badge variant="secondary" className="text-xs">Q {currentQ + 1}/{questions.length}</Badge>
         <div className="flex items-center gap-2">

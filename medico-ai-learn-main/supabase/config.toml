@@ -1,4 +1,46 @@
-project_id = "yfjvmrerlcgtgdncqepi"
+project_id = "wyhgolavpnmmtipaodju"
 
 [functions.ai-helper]
+verify_jwt = false
+
+[functions.chat]
+verify_jwt = false
+
+[functions.generate-quiz]
+verify_jwt = false
+
+[functions.generate-viva]
+verify_jwt = false
+
+[functions.generate-study-plan]
+verify_jwt = false
+
+[functions.generate-mock-exam]
+verify_jwt = false
+
+[functions.generate-drill]
+verify_jwt = false
+
+[functions.generate-recap]
+verify_jwt = false
+
+[functions.generate-case-study]
+verify_jwt = false
+
+[functions.generate-diagram-quiz]
+verify_jwt = false
+
+[functions.generate-pyq]
+verify_jwt = false
+
+[functions.generate-formula-sheet]
+verify_jwt = false
+
+[functions.generate-ocr]
+verify_jwt = false
+
+[functions.generate-progress-report]
+verify_jwt = false
+
+[functions.generate-recap-quiz]
 verify_jwt = false

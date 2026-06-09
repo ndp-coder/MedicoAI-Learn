@@ -10,6 +10,7 @@ import Layout from "./components/Layout";
 import { Loader2 } from "lucide-react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { GatedRoute } from "./components/GatedRoute";
 
 // Lazy load all pages
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -46,6 +47,7 @@ const NotesSummarizer = lazy(() => import("./pages/NotesSummarizer"));
 const LectureRecorder = lazy(() => import("./pages/LectureRecorder"));
 const Practice = lazy(() => import("./pages/Practice"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const Pricing = lazy(() => import("./pages/Pricing"));
 
 const queryClient = new QueryClient();
 
@@ -64,7 +66,7 @@ const App = () => (
             <OfflineBanner />
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route path="/auth" element={<Auth />} />
@@ -75,33 +77,34 @@ const App = () => (
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/doubt" element={<DoubtSolver />} />
                     <Route path="/quiz" element={<DailyQuiz />} />
-                    <Route path="/quiz/challenge" element={<QuizChallenge />} />
+                    <Route path="/quiz/challenge" element={<GatedRoute requiredPlan="Max" featureName="Quiz Challenge"><QuizChallenge /></GatedRoute>} />
                     <Route path="/recap" element={<TopicRecap />} />
                     <Route path="/flashcards" element={<Flashcards />} />
                     <Route path="/goals" element={<StudyGoals />} />
                     <Route path="/marks" element={<TestMarks />} />
-                    <Route path="/suggestions" element={<Suggestions />} />
-                    <Route path="/timer" element={<PomodoroTimer />} />
-                    <Route path="/bookmarks" element={<Bookmarks />} />
+                    <Route path="/suggestions" element={<GatedRoute requiredPlan="Max" featureName="Study Tips"><Suggestions /></GatedRoute>} />
+                    <Route path="/timer" element={<GatedRoute requiredPlan="Max" featureName="Pomodoro Timer"><PomodoroTimer /></GatedRoute>} />
+                    <Route path="/bookmarks" element={<GatedRoute requiredPlan="Max" featureName="Bookmarks"><Bookmarks /></GatedRoute>} />
                     <Route path="/settings" element={<Settings />} />
-                    <Route path="/notes" element={<Notes />} />
-                    <Route path="/study-plan" element={<StudyPlan />} />
+                    <Route path="/notes" element={<GatedRoute requiredPlan="Max" featureName="Study Notes"><Notes /></GatedRoute>} />
+                    <Route path="/study-plan" element={<GatedRoute requiredPlan="Max" featureName="Study Plan"><StudyPlan /></GatedRoute>} />
                     <Route path="/viva" element={<VivaPractice />} />
                     <Route path="/pyq" element={<PYQPractice />} />
-                    <Route path="/analytics" element={<Analytics />} />
-                    <Route path="/case-study" element={<CaseStudy />} />
-                    <Route path="/diagram-quiz" element={<DiagramQuiz />} />
-                    <Route path="/drill" element={<DrillMode />} />
-                    <Route path="/mistakes" element={<MistakeJournal />} />
+                    <Route path="/analytics" element={<GatedRoute requiredPlan="Max" featureName="Analytics"><Analytics /></GatedRoute>} />
+                    <Route path="/case-study" element={<GatedRoute requiredPlan="Max" featureName="Case Study"><CaseStudy /></GatedRoute>} />
+                    <Route path="/diagram-quiz" element={<GatedRoute requiredPlan="Max" featureName="Diagram Quiz"><DiagramQuiz /></GatedRoute>} />
+                    <Route path="/drill" element={<GatedRoute requiredPlan="Max" featureName="Weak Area Drill"><DrillMode /></GatedRoute>} />
+                    <Route path="/mistakes" element={<GatedRoute requiredPlan="Max" featureName="Mistake Journal"><MistakeJournal /></GatedRoute>} />
                     <Route path="/mock-exam" element={<MockExam />} />
-                    <Route path="/formula-sheet" element={<FormulaSheet />} />
-                    <Route path="/challenge" element={<DailyChallenge />} />
+                    <Route path="/formula-sheet" element={<GatedRoute requiredPlan="Max" featureName="Formula Sheet"><FormulaSheet /></GatedRoute>} />
+                    <Route path="/challenge" element={<GatedRoute requiredPlan="Max" featureName="Daily Challenge"><DailyChallenge /></GatedRoute>} />
                     <Route path="/osce" element={<OSCEChecklists />} />
                     <Route path="/cases" element={<ClinicalCases />} />
-                    <Route path="/diagram-explain" element={<DiagramExplain />} />
-                    <Route path="/summarizer" element={<NotesSummarizer />} />
-                    <Route path="/recorder" element={<LectureRecorder />} />
-                    <Route path="/practice" element={<Practice />} />
+                    <Route path="/diagram-explain" element={<GatedRoute requiredPlan="Max" featureName="Explain Diagram"><DiagramExplain /></GatedRoute>} />
+                    <Route path="/summarizer" element={<GatedRoute requiredPlan="Max" featureName="Notes Summarizer"><NotesSummarizer /></GatedRoute>} />
+                    <Route path="/recorder" element={<GatedRoute requiredPlan="Max" featureName="Lecture Recorder"><LectureRecorder /></GatedRoute>} />
+                    <Route path="/practice" element={<GatedRoute requiredPlan="Max" featureName="Practice (SRS)"><Practice /></GatedRoute>} />
+                    <Route path="/pricing" element={<Pricing />} />
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>
