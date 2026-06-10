@@ -94,7 +94,7 @@ export default function Pricing() {
       const { id: order_id, amount, currency } = data;
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_XXXXXXXXXXXX", // Use test key
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_Szph0qLRCzg1bU", // Use test key
         amount,
         currency,
         name: "MedicoAI Learn",
