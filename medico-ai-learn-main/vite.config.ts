@@ -11,5 +11,8 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+    // SPA mode: emit an index.html shell into dist/client so the site can be
+    // served as a static site on Netlify (no SSR server needed).
+    spa: { enabled: true, prerender: { outputPath: "/index" } },
   },
 });
