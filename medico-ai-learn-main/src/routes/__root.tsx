@@ -58,6 +58,9 @@ export const Route = createRootRoute({
       { name: "google-site-verification", content: "8gFbwq-gdLVhlPnlHxqUYFRb1EGK7zKRCf3k4tO-DW0" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/medicoai-logo.png", type: "image/png" },
     ],
