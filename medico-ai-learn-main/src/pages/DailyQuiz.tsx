@@ -214,6 +214,14 @@ const DailyQuiz = () => {
     setAnswers((prev) => ({ ...prev, [qi]: parseInt(value) }));
   };
 
+  const goToPrev = () => {
+    if (currentQuestion > 0) setCurrentQuestion(currentQuestion - 1);
+  };
+
+  const goToNext = () => {
+    if (currentQuestion < questions.length - 1) setCurrentQuestion(currentQuestion + 1);
+  };
+
   const handleBookmark = (qi: number) => {
     const q = questions[qi];
     addBookmark({
