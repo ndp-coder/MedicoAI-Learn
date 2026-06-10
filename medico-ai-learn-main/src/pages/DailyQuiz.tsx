@@ -79,6 +79,7 @@ const DailyQuiz = () => {
   const [customTopic, setCustomTopic] = useState("");
   const [numQuestions, setNumQuestions] = useState(5);
   const [showHistory, setShowHistory] = useState(false);
+  const [score, setScore] = useState(0);
 
   // Timer state
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -154,7 +155,8 @@ const DailyQuiz = () => {
     // Allow partial answers (timed-out questions count as unanswered)
     if (timerRef.current) clearInterval(timerRef.current);
     setSubmitted(true);
-    const score = questions.reduce((acc, q, i) => acc + (answers[i] === q.correctIndex ? 1 : 0), 0);
+    const calculatedScore = questions.reduce((acc, q, i) => acc + (answers[i] === q.correctIndex ? 1 : 0), 0);
+    setScore(calculatedScore);
 
     const subjectStats: Record<string, { attempted: number; correct: number }> = {};
     questions.forEach((q, i) => {
@@ -184,7 +186,7 @@ const DailyQuiz = () => {
     // Save to history array (multiple quizzes per day)
     const subjectName = subjects.find(s => s.id === selectedSubject)?.name || "Random Mix";
     const entry: QuizHistoryEntry = {
-      score,
+      score: calculatedScore,
       total: questions.length,
       subject: subjectName,
       difficulty,
@@ -193,9 +195,9 @@ const DailyQuiz = () => {
     const todayEntries = quizHistory[today] || [];
     const updatedHistory = { ...quizHistory, [today]: [...todayEntries, entry] };
     setQuizHistory(updatedHistory);
-    import("@/lib/syncEngine").then(({ syncToCloud }) => syncToCloud("quiz_history", () => updatedHistory));
+    import("@/lib/syncEngine").then(({ syncEngine }) => syncEngine.syncToCloud("quiz_history", () => updatedHistory));
 
-    const result = awardXP("quiz", score / questions.length);
+    const result = awardXP("quiz", calculatedScore / questions.length);
     toast.success(`+${result.xp} XP earned! ⚡`);
     if (result.leveledUp && result.newLevel) {
       toast.success(`🎉 Level up! You're now a ${result.newLevel.emoji} ${result.newLevel.name}!`);
